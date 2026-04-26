@@ -2,15 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private apiUrl = `${environment.apiUrl}/cart`;
-  private cartSubject = new BehaviorSubject<any>(null);
+  private readonly apiUrl = `${environment.apiUrl}/cart`;
+  private readonly cartSubject = new BehaviorSubject<any>(null);
   cart$ = this.cartSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getCart(): Observable<any> {
     return this.http.get(this.apiUrl).pipe(
