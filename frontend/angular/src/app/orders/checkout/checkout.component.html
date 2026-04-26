@@ -1,0 +1,64 @@
+<div class="checkout-container">
+  <h1>Finalizar Compra</h1>
+  
+  <div *ngIf="loading" class="loading">
+    Cargando...
+  </div>
+
+  <div *ngIf="!loading && cart" class="checkout-content">
+    <div class="checkout-form">
+      <div class="card">
+        <h2>Información de Envío</h2>
+        
+        <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="shipping_address">Dirección de Envío *</label>
+            <textarea id="shipping_address" formControlName="shipping_address" 
+                      rows="3" class="form-control" 
+                      placeholder="Calle, número, ciudad, código postal"></textarea>
+            <div class="error-message" *ngIf="checkoutForm.get('shipping_address')?.invalid && checkoutForm.get('shipping_address')?.touched">
+              Dirección de envío requerida (mínimo 10 caracteres)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="payment_method">Método de Pago *</label>
+            <select id="payment_method" formControlName="payment_method" class="form-control">
+              <option value="credit_card">Tarjeta de Crédito</option>
+              <option value="debit_card">Tarjeta de Débito</option>
+              <option value="paypal">PayPal</option>
+              <option value="transfer">Transferencia Bancaria</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" routerLink="/cart">Volver al Carrito</button>
+            <button type="submit" class="btn btn-primary" [disabled]="submitting">
+              {{ submitting ? 'Procesando...' : 'Confirmar Pedido' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="order-summary">
+      <div class="card">
+        <h2>Resumen del Pedido</h2>
+        
+        <div class="summary-items">
+          <div *ngFor="let item of cart.items" class="summary-item">
+            <span>{{ item.product_name }} x{{ item.quantity }}</span>
+            <span>{{ item.subtotal | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+        
+        <div class="summary-total">
+          <div class="total-row">
+            <strong>Total:</strong>
+            <strong>{{ cart.total | currency:'USD':'symbol':'1.2-2' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

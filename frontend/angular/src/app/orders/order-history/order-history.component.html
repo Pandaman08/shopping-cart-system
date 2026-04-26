@@ -1,0 +1,48 @@
+<div class="orders-container">
+  <h1>Mis Pedidos</h1>
+  
+  <div *ngIf="loading" class="loading">
+    Cargando pedidos...
+  </div>
+
+  <div *ngIf="!loading && orders.length === 0" class="no-orders">
+    <p>No tienes pedidos aún</p>
+    <button class="btn btn-primary" routerLink="/products">Comprar Ahora</button>
+  </div>
+
+  <div *ngIf="!loading && orders.length > 0" class="orders-list">
+    <div *ngFor="let order of orders" class="order-card">
+      <div class="order-header">
+        <div class="order-info">
+          <strong>Pedido #{{ order.id.slice(0, 8) }}</strong>
+          <span class="order-date">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="order-status">
+          <span class="status-badge" [class]="getStatusClass(order.status)">
+            {{ getStatusText(order.status) }}
+          </span>
+          <span class="order-total">Total: {{ order.total_amount | currency:'USD':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+      
+      <div class="order-items">
+        <div *ngFor="let item of order.items" class="order-item">
+          <div class="item-info">
+            <span class="item-name">{{ item.product_name }}</span>
+            <span class="item-quantity">x{{ item.quantity }}</span>
+          </div>
+          <span class="item-price">{{ item.subtotal | currency:'USD':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+      
+      <div class="order-footer" *ngIf="order.shipping_address">
+        <div class="shipping-info">
+          <strong>Dirección de envío:</strong> {{ order.shipping_address }}
+        </div>
+        <div class="payment-info" *ngIf="order.payment_method">
+          <strong>Método de pago:</strong> {{ order.payment_method }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<div class="card">
+  <h2>{{ isEdit ? 'Editar Producto' : 'Crear Nuevo Producto' }}</h2>
+  
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Nombre del Producto *</label>
+      <input type="text" id="name" formControlName="name" class="form-control">
+      <div class="error-message" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">
+        Nombre requerido (mínimo 3 caracteres)
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descripción *</label>
+      <textarea id="description" formControlName="description" rows="4" class="form-control"></textarea>
+      <div class="error-message" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">
+        Descripción requerida
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="price">Precio ($) *</label>
+        <input type="number" id="price" formControlName="price" step="0.01" class="form-control">
+        <div class="error-message" *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+          Precio válido requerido
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="stock">Stock *</label>
+        <input type="number" id="stock" formControlName="stock" class="form-control">
+        <div class="error-message" *ngIf="productForm.get('stock')?.invalid && productForm.get('stock')?.touched">
+          Stock válido requerido
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category_id">Categoría</label>
+        <select id="category_id" formControlName="category_id" class="form-control">
+          <option [value]="null">Sin categoría</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="image_url">URL de Imagen</label>
+        <input type="url" id="image_url" formControlName="image_url" class="form-control" placeholder="https://...">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" routerLink="/admin/dashboard">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        {{ loading ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear') }}
+      </button>
+    </div>
+  </form>
+</div>

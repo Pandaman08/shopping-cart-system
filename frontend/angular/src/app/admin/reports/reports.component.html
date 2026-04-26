@@ -1,0 +1,58 @@
+<div class="reports-container">
+  <h1>Generador de Reportes</h1>
+  
+  <div class="card">
+    <div class="report-type-selector">
+      <label>
+        <input type="radio" value="orders" [(ngModel)]="reportType">
+        Reporte de Pedidos
+      </label>
+      <label>
+        <input type="radio" value="executive" [(ngModel)]="reportType">
+        Reporte Ejecutivo
+      </label>
+    </div>
+
+    <form [formGroup]="reportForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="start_date">Fecha Inicio</label>
+          <input type="date" id="start_date" formControlName="start_date" class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="end_date">Fecha Fin</label>
+          <input type="date" id="end_date" formControlName="end_date" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="reportType === 'orders'">
+        <label>
+          <input type="checkbox" formControlName="include_kpis">
+          Incluir KPIs en el reporte
+        </label>
+      </div>
+
+      <div class="form-group" *ngIf="reportType === 'executive'">
+        <label>
+          <input type="checkbox" formControlName="include_charts">
+          Incluir gráficos en el reporte
+        </label>
+      </div>
+
+      <button type="button" class="btn btn-primary" (click)="generateReport()" [disabled]="loading">
+        {{ loading ? 'Generando...' : 'Generar Reporte PDF' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="info-section">
+    <h3>Información</h3>
+    <ul>
+      <li>Los reportes se generan en formato PDF</li>
+      <li>El reporte de pedidos incluye detalle de cada pedido en el período seleccionado</li>
+      <li>El reporte ejecutivo incluye KPIs y análisis de rendimiento</li>
+      <li>Los reportes se descargarán automáticamente al generarse</li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,65 @@
+<div class="cart-container">
+  <h1>Mi Carrito de Compras</h1>
+  
+  <div *ngIf="loading" class="loading">
+    Cargando carrito...
+  </div>
+
+  <div *ngIf="!loading && (!cart || cart.items.length === 0)" class="empty-cart">
+    <p>Tu carrito está vacío</p>
+    <button class="btn btn-primary" routerLink="/products">Seguir Comprando</button>
+  </div>
+
+  <div *ngIf="!loading && cart && cart.items.length > 0" class="cart-content">
+    <div class="cart-items">
+      <div *ngFor="let item of cart.items" class="cart-item">
+        <div class="item-image">
+          <img [src]="item.product_image || 'https://via.placeholder.com/80x80?text=Producto'" 
+               [alt]="item.product_name">
+        </div>
+        
+        <div class="item-details">
+          <h3>{{ item.product_name }}</h3>
+          <p class="item-price">Precio unitario: {{ item.unit_price | currency:'USD':'symbol':'1.2-2' }}</p>
+        </div>
+        
+        <div class="item-quantity">
+          <button (click)="updateQuantity(item, -1)" [disabled]="item.quantity <= 1">-</button>
+          <span>{{ item.quantity }}</span>
+          <button (click)="updateQuantity(item, 1)">+</button>
+        </div>
+        
+        <div class="item-subtotal">
+          <strong>{{ item.subtotal | currency:'USD':'symbol':'1.2-2' }}</strong>
+        </div>
+        
+        <div class="item-actions">
+          <button class="btn-danger-small" (click)="removeItem(item.product_id)">🗑️</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <h2>Resumen del Pedido</h2>
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <strong>{{ cart.total | currency:'USD':'symbol':'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Envío:</span>
+        <strong>Calculado en checkout</strong>
+      </div>
+      <div class="summary-row total">
+        <span>Total:</span>
+        <strong>{{ cart.total | currency:'USD':'symbol':'1.2-2' }}</strong>
+      </div>
+      
+      <div class="cart-actions">
+        <button class="btn btn-secondary" (click)="clearCart()">Vaciar Carrito</button>
+        <button class="btn btn-primary" (click)="proceedToCheckout()">Proceder al Pago</button>
+      </div>
+      
+      <button class="btn-link" routerLink="/products">Seguir Comprando</button>
+    </div>
+  </div>
+</div>

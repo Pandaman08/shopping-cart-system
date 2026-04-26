@@ -1,0 +1,81 @@
+<div class="admin-dashboard">
+  <h1>Panel de Administración</h1>
+  
+  <div class="admin-actions">
+    <button class="btn btn-success" routerLink="/admin/products/new">+ Nuevo Producto</button>
+    <button class="btn btn-primary" routerLink="/admin/reports">Ver Reportes</button>
+  </div>
+
+  <div class="dashboard-sections">
+    <!-- Productos -->
+    <div class="section">
+      <h2>Gestión de Productos</h2>
+      
+      <div *ngIf="loadingProducts" class="loading">
+        Cargando productos...
+      </div>
+      
+      <div *ngIf="!loadingProducts" class="products-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Categoría</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td>{{ product.name }}</td>
+              <td>{{ product.price | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td [class.low-stock]="product.stock < 10">{{ product.stock }}</td>
+              <td>{{ product.category_name || 'Sin categoría' }}</td>
+              <td class="actions">
+                <button class="btn-edit" [routerLink]="['/admin/products/edit', product.id]">✏️</button>
+                <button class="btn-delete" (click)="deleteProduct(product.id)">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pedidos -->
+    <div class="section">
+      <h2>Pedidos Recientes</h2>
+      
+      <div *ngIf="loadingOrders" class="loading">
+        Cargando pedidos...
+      </div>
+      
+      <div *ngIf="!loadingOrders" class="orders-table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders.slice(0, 20)">
+              <td>{{ order.id.slice(0, 8) }}</td>
+              <td>{{ order.user_name }}</td>
+              <td>{{ order.total_amount | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + order.status">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>{{ order.created_at | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

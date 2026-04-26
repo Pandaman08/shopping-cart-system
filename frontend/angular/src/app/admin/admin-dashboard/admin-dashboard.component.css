@@ -1,0 +1,99 @@
+.admin-dashboard {
+  padding: 20px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.dashboard-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.section h2 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.data-table tr:hover {
+  background: #f8f9fa;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-edit,
+.btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.btn-edit:hover {
+  opacity: 0.7;
+}
+
+.btn-delete:hover {
+  opacity: 0.7;
+}
+
+.low-stock {
+  color: #e67e22;
+  font-weight: bold;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-paid {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-shipped {
+  background: #cce5ff;
+  color: #004085;
+}

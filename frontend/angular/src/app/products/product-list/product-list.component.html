@@ -1,0 +1,56 @@
+<div class="product-filters">
+  <div class="search-box">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm" 
+      (keyup.enter)="onSearch()"
+      placeholder="Buscar productos..."
+      class="form-control">
+    <button (click)="onSearch()" class="btn btn-primary">Buscar</button>
+  </div>
+  
+  <div class="category-filter">
+    <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="form-control">
+      <option value="">Todas las categorías</option>
+      <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+    </select>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading">
+  Cargando productos...
+</div>
+
+<div *ngIf="!loading" class="product-grid">
+  <div *ngFor="let product of products" class="product-card">
+    <div class="product-image">
+      <img [src]="product.image_url || 'https://via.placeholder.com/200x200?text=Producto'" 
+           [alt]="product.name">
+    </div>
+    <div class="product-info">
+      <h3>{{ product.name }}</h3>
+      <p class="product-description">{{ product.description | slice:0:100 }}...</p>
+      <div class="product-price">
+        <span class="price">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+        <span class="stock" [class.low-stock]="product.stock < 10">
+          Stock: {{ product.stock }} unidades
+        </span>
+      </div>
+      <button class="btn btn-primary btn-block" 
+              (click)="addToCart(product)"
+              [disabled]="product.stock === 0">
+        {{ product.stock === 0 ? 'Agotado' : 'Agregar al Carrito' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loading && products.length === 0" class="no-results">
+  No se encontraron productos
+</div>
+
+<div class="pagination" *ngIf="totalPages > 1">
+  <button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">Anterior</button>
+  <span>Página {{ currentPage }} de {{ totalPages }}</span>
+  <button [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">Siguiente</button>
+</div>
