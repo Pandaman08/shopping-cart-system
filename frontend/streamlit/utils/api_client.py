@@ -1,10 +1,11 @@
 import requests
 import streamlit as st
+import os
 from typing import Optional, Dict, Any
 
 class APIClient:
     def __init__(self, token: str):
-        self.base_url = "http://localhost:8000/api"
+        self.base_url = os.getenv("API_BASE_URL", "http://localhost:8000/api")
         self.headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"

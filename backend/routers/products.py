@@ -70,6 +70,19 @@ async def get_products(
             "pages": (total + limit - 1) // limit
         }
 
+
+@router.get("/categories", response_model=List[dict])
+async def get_categories(db=Depends(get_db)):
+    async with db.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT id, name, description
+            FROM categories
+            ORDER BY name ASC
+            """
+        )
+        return [dict(row) for row in rows]
+
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: str, db=Depends(get_db)):
     async with db.acquire() as conn:

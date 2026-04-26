@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/cartdb")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:CHANGE_ME@localhost:5432/cartdb")
 
 _pool = None
 

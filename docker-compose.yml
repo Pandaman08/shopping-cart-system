@@ -1,0 +1,85 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: shopping-cart-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cartdb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-cartdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: shopping-cart-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: shopping-cart-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-change_me}@db:5432/${POSTGRES_DB:-cartdb}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: ${SECRET_KEY:-change_me_too}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200,http://localhost:8501}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build:
+      context: ./frontend/angular
+      dockerfile: Dockerfile
+    container_name: shopping-cart-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+      ports:
+        - "4200:80"
+
+  streamlit:
+    build:
+      context: ./frontend/streamlit   
+      dockerfile: Dockerfile
+      container_name: shopping-cart-streamlit
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: http://backend:8000/api
+    depends_on:
+      backend:
+        condition: service_healthy
+      ports:
+        - "8501:8501"
+
+volumes:
+  postgres_data:

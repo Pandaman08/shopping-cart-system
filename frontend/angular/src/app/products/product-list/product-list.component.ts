@@ -15,8 +15,9 @@ export class ProductListComponent implements OnInit {
   totalPages = 1;
   totalItems = 0;
   searchTerm = '';
-  selectedCategory = '';
+  selectedCategory: number | undefined = undefined;
   categories: any[] = [];
+  readonly placeholderImage = 'https://via.placeholder.com/200x200?text=Producto';
 
   constructor(
     private productService: ProductService,
@@ -84,5 +85,12 @@ export class ProductListComponent implements OnInit {
         alert('Error al agregar al carrito: ' + error.message);
       }
     });
+  }
+
+  onImageError(event: Event) {
+    const target = event.target as HTMLImageElement;
+    if (target && target.src !== this.placeholderImage) {
+      target.src = this.placeholderImage;
+    }
   }
 }

@@ -4,14 +4,12 @@ import asyncpg
 import random
 from datetime import datetime, timedelta
 import os
-import sys
+import bcrypt as _bcrypt
 
-# Agregar backend al path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+def get_password_hash(password: str) -> str:
+    return _bcrypt.hashpw(password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
 
-from backend.auth.password_handler import get_password_hash
-
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/cartdb"
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:CHANGE_ME@localhost:5432/cartdb")
 
 async def seed_database():
     """Insertar datos de prueba en la base de datos"""
@@ -155,8 +153,8 @@ async def seed_database():
                     """
                     INSERT INTO orders (user_id, cart_id, total_amount, status, 
                                       payment_method, shipping_address, created_at, paid_at)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, 
-                            CASE WHEN $4 IN ('paid', 'delivered', 'shipped') THEN $7 ELSE NULL END)
+                    VALUES ($1, $2, $3, $4::varchar, $5, $6, $7::timestamp, 
+                            CASE WHEN $4::varchar IN ('paid', 'delivered', 'shipped') THEN $7::timestamp ELSE NULL END)
                     RETURNING id
                     """,
                     user_id, cart_id, total_amount, status, payment_method,

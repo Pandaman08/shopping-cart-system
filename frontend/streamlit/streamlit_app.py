@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime
+import os
 
 st.set_page_config(
     page_title="Sistema de Ventas",
@@ -16,7 +17,7 @@ if 'user' not in st.session_state:
     st.session_state.user = None
 
 # API base URL
-API_BASE = "http://localhost:8000/api"
+API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000/api")
 
 # Sidebar para autenticación
 with st.sidebar:

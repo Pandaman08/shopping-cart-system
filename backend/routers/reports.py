@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 from auth import get_admin_user
 from database.connection import get_db
-from services.pdf_generator import PDFReportGenerator
+from utils.pdf_generator import PDFReportGenerator
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 

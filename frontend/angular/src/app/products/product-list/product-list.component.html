@@ -11,8 +11,8 @@
   
   <div class="category-filter">
     <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="form-control">
-      <option value="">Todas las categorías</option>
-      <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+      <option [ngValue]="undefined">Todas las categorías</option>
+      <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
     </select>
   </div>
 </div>
@@ -24,8 +24,11 @@
 <div *ngIf="!loading" class="product-grid">
   <div *ngFor="let product of products" class="product-card">
     <div class="product-image">
-      <img [src]="product.image_url || 'https://via.placeholder.com/200x200?text=Producto'" 
-           [alt]="product.name">
+      <img [src]="product.image_url || placeholderImage"
+           [alt]="product.name"
+           loading="lazy"
+           decoding="async"
+           (error)="onImageError($event)">
     </div>
     <div class="product-info">
       <h3>{{ product.name }}</h3>
