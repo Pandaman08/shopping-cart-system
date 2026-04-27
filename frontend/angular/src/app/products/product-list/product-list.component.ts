@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-list',
@@ -11,6 +12,7 @@ import { AuthService } from '../../services/auth.service';
 export class ProductListComponent implements OnInit {
   products: any[] = [];
   loading = false;
+  loadError = '';
   currentPage = 1;
   totalPages = 1;
   totalItems = 0;
@@ -22,7 +24,8 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -32,16 +35,26 @@ export class ProductListComponent implements OnInit {
 
   loadProducts() {
     this.loading = true;
+    this.loadError = '';
     this.productService.getProducts(this.currentPage, 12, this.searchTerm, this.selectedCategory)
       .subscribe({
         next: (response) => {
-          this.products = response.items;
-          this.totalPages = response.pages;
-          this.totalItems = response.total;
+          const items = Array.isArray(response?.items)
+            ? response.items
+            : Array.isArray(response?.data)
+              ? response.data
+              : Array.isArray(response)
+                ? response
+                : [];
+
+          this.products = items;
+          this.totalPages = Number(response?.pages || 1);
+          this.totalItems = Number(response?.total || items.length);
           this.loading = false;
         },
         error: (error) => {
           console.error('Error loading products:', error);
+          this.loadError = 'No se pudieron actualizar los productos. Intenta nuevamente.';
           this.loading = false;
         }
       });
@@ -73,11 +86,26 @@ export class ProductListComponent implements OnInit {
 
   addToCart(product: any) {
     if (!this.authService.isLoggedIn()) {
-      alert('Por favor inicia sesión para agregar productos al carrito');
+      this.cartService.queuePendingItem({
+        id: product.id,
+        quantity: 1,
+        name: product.name,
+        price: Number(product.price),
+        image_url: product.image_url
+      });
+
+      const goToLogin = confirm('Debes iniciar sesión para finalizar el agregado al carrito. ¿Quieres ir a iniciar sesión ahora?');
+      this.router.navigate([goToLogin ? '/login' : '/register'], {
+        queryParams: { returnUrl: '/products' }
+      });
       return;
     }
     
-    this.cartService.addItem(product.id, 1).subscribe({
+    this.cartService.addItem(product.id, 1, {
+      name: product.name,
+      price: Number(product.price),
+      image_url: product.image_url
+    }).subscribe({
       next: () => {
         alert(`${product.name} agregado al carrito`);
       },

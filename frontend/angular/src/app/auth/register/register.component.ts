@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-register',
@@ -16,7 +17,9 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private cartService: CartService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.registerForm = this.fb.group({
       full_name: ['', [Validators.required, Validators.minLength(3)]],
@@ -46,8 +49,14 @@ export class RegisterComponent {
     };
 
     this.authService.register(userData).subscribe({
-      next: () => {
-        this.router.navigate(['/products']);
+      next: (response) => {
+        const defaultRoute = response?.user?.role === 'admin' ? '/admin/dashboard' : '/products';
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || defaultRoute;
+
+        this.cartService.syncPendingItems().subscribe({
+          next: () => this.router.navigateByUrl(returnUrl),
+          error: () => this.router.navigateByUrl(returnUrl)
+        });
       },
       error: (error) => {
         this.errorMessage = error.error?.detail || 'Error al registrarse';

@@ -1,0 +1,163 @@
+<div class="dashboard-root">
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+      <p class="sidebar-title">Panel</p>
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard" class="sidebar-link sidebar-link--active">📊 Dashboard</a>
+        <a routerLink="/dashboard" class="sidebar-link">🛍️ Catálogo</a>
+        <a *ngIf="isAdmin" routerLink="/admin/dashboard" class="sidebar-link">⚙️ Admin</a>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <p class="sidebar-title">Cuenta</p>
+      <nav *ngIf="isLoggedIn" class="sidebar-nav">
+        <span class="sidebar-link">👤 {{ currentUserName }}</span>
+        <button type="button" class="sidebar-link sidebar-link--danger" (click)="logout()">🚪 Cerrar Sesión</button>
+      </nav>
+      <nav *ngIf="!isLoggedIn" class="sidebar-nav">
+        <a routerLink="/login" class="sidebar-link">🔓 Iniciar Sesión</a>
+        <a routerLink="/register" class="sidebar-link">✨ Registrarse</a>
+      </nav>
+    </aside>
+
+    <main class="dashboard-main">
+      <section class="kpi-grid">
+        <article class="kpi-card kpi-card--blue">
+          <p class="kpi-label">Productos totales</p>
+          <p class="kpi-value">{{ products.length }}</p>
+        </article>
+        <article class="kpi-card kpi-card--cyan">
+          <p class="kpi-label">Categorías</p>
+          <p class="kpi-value">{{ categories.length }}</p>
+        </article>
+        <article class="kpi-card kpi-card--amber">
+          <p class="kpi-label">Resultados visibles</p>
+          <p class="kpi-value">{{ filteredProducts.length }}</p>
+        </article>
+        <article class="kpi-card kpi-card--rose">
+          <p class="kpi-label">Sin stock</p>
+          <p class="kpi-value">{{ getOutOfStockCount() }}</p>
+        </article>
+      </section>
+
+      <section class="filters-card">
+        <div class="filters-row">
+          <div class="field field--grow">
+            <label class="field-label">Buscar producto</label>
+            <div class="search-wrap">
+              <input
+                type="text"
+                [value]="searchQuery"
+                placeholder="Ej: iPhone, auriculares, coche"
+                class="field-input"
+                (input)="onSearchChange($event)"
+              />
+              <button *ngIf="searchQuery" type="button" class="btn btn--ghost btn--mini" (click)="clearSearch()">Limpiar</button>
+            </div>
+          </div>
+
+          <div class="field field--select">
+            <label class="field-label">Ordenar por</label>
+            <select class="field-input" [value]="sortBy" (change)="onSortChange($event)">
+              <option value="name">Nombre</option>
+              <option value="price">Precio</option>
+              <option value="stock">Stock</option>
+            </select>
+          </div>
+
+          <div class="field field--action">
+            <button type="button" class="btn btn--ghost" [disabled]="!hasActiveFilters" (click)="clearAllFilters()">Resetear filtros</button>
+          </div>
+        </div>
+
+        <div class="categories-wrap">
+          <p class="field-label">Explorar por categorías</p>
+          <div class="chips">
+            <button
+              type="button"
+              class="chip"
+              [class.chip--active]="selectedCategory === null"
+              (click)="filterByCategory(null)"
+            >
+              Todas ({{ products.length }})
+            </button>
+
+            <button
+              *ngFor="let category of categories"
+              type="button"
+              class="chip"
+              [class.chip--active]="selectedCategory === category"
+              (click)="filterByCategory(category)"
+            >
+              {{ category }} ({{ getCategoryCount(category) }})
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="catalog-card">
+        <div class="catalog-head">
+          <h2 class="catalog-title">{{ isLoading ? 'Cargando catálogo...' : 'Catálogo de productos' }}</h2>
+          <span class="catalog-badge">{{ filteredProducts.length }} resultados</span>
+        </div>
+
+        <div *ngIf="isLoading" class="products-grid">
+          <article *ngFor="let _ of skeletonCards" class="skeleton-card">
+            <div class="skeleton skeleton--image"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton--sm"></div>
+              <div class="skeleton skeleton--md"></div>
+              <div class="skeleton skeleton--lg"></div>
+              <div class="skeleton skeleton--lg"></div>
+              <div class="skeleton skeleton--btn"></div>
+            </div>
+          </article>
+        </div>
+
+        <div *ngIf="!isLoading && filteredProducts.length > 0" class="products-grid">
+          <article *ngFor="let product of filteredProducts" class="product-card">
+            <div class="product-media">
+              <img
+                [src]="getImageUrl(product.image_url)"
+                [alt]="product.name"
+                class="product-image"
+                onerror="this.src='https://via.placeholder.com/300x300?text=Sin+imagen'"
+              />
+              <div [class]="'stock-pill ' + getStockStatusClass(product.stock)">{{ getStockStatusText(product.stock) }}</div>
+            </div>
+
+            <div class="product-body">
+              <p class="product-category">{{ product.category_name || 'Sin categoría' }}</p>
+              <h3 class="product-name line-clamp-2">{{ product.name }}</h3>
+              <p class="product-description line-clamp-2">{{ product.description || 'Sin descripción disponible.' }}</p>
+
+              <div class="product-meta">
+                <p class="product-price">${{ product.price | number:'1.2-2' }}</p>
+                <p class="product-stock">Stock: {{ product.stock }}</p>
+              </div>
+
+              <button
+                type="button"
+                [disabled]="product.stock === 0"
+                (click)="addToCart(product)"
+                class="btn btn--primary btn--full"
+              >
+                {{ product.stock > 0 ? 'Añadir al carrito' : 'Sin stock' }}
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <div *ngIf="!isLoading && filteredProducts.length === 0" class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3 class="empty-title">Sin resultados por ahora</h3>
+          <p class="empty-text">
+            {{ searchQuery ? 'No encontramos coincidencias. Prueba otros términos.' : 'No hay productos para los filtros actuales.' }}
+          </p>
+          <button type="button" class="btn btn--primary" (click)="clearAllFilters()">Ver todos los productos</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

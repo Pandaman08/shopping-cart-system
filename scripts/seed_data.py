@@ -44,18 +44,18 @@ async def seed_database():
         
         # 2. Crear productos
         products_data = [
-            ("iPhone 15 Pro", "Teléfono de última generación", 999.99, 50, 0, "https://example.com/iphone.jpg"),
-            ("MacBook Pro", "Laptop profesional", 1999.99, 30, 0, "https://example.com/macbook.jpg"),
-            ("Camiseta Deportiva", "Camiseta de algodón", 29.99, 200, 1, "https://example.com/tshirt.jpg"),
-            ("Jeans", "Pantalón vaquero", 59.99, 150, 1, "https://example.com/jeans.jpg"),
-            ("Sartén Antiadherente", "Sartén de 28cm", 39.99, 100, 2, "https://example.com/pan.jpg"),
-            ("Juego de Sábanas", "Sábanas 100% algodón", 49.99, 80, 2, "https://example.com/sheets.jpg"),
-            ("Balón de Fútbol", "Balón oficial", 29.99, 120, 3, "https://example.com/ball.jpg"),
-            ("Raqueta de Tenis", "Raqueta profesional", 89.99, 60, 3, "https://example.com/racket.jpg"),
-            ("Libro Python", "Aprende Python desde cero", 49.99, 90, 4, "https://example.com/book.jpg"),
-            ("Lego Star Wars", "Set de construcción", 79.99, 70, 5, "https://example.com/lego.jpg"),
-            ("Tablet Samsung", "Tablet 10 pulgadas", 299.99, 45, 0, "https://example.com/tablet.jpg"),
-            ("Auriculares Sony", "Auriculares Bluetooth", 149.99, 110, 0, "https://example.com/headphones.jpg"),
+            ("iPhone 15 Pro", "Teléfono de última generación", 999.99, 50, 0, "/api/images/iphone.jpg"),
+            ("MacBook Pro", "Laptop profesional", 1999.99, 30, 0, "/api/images/macbook.jpg"),
+            ("Camiseta Deportiva", "Camiseta de algodón", 29.99, 200, 1, "/api/images/tshirt.jpg"),
+            ("Jeans", "Pantalón vaquero", 59.99, 150, 1, "/api/images/jeans.jpg"),
+            ("Sartén Antiadherente", "Sartén de 28cm", 39.99, 100, 2, "/api/images/pan.jpg"),
+            ("Juego de Sábanas", "Sábanas 100% algodón", 49.99, 80, 2, "/api/images/sheets.jpg"),
+            ("Balón de Fútbol", "Balón oficial", 29.99, 120, 3, "/api/images/ball.jpg"),
+            ("Raqueta de Tenis", "Raqueta profesional", 89.99, 60, 3, "/api/images/racket.jpg"),
+            ("Libro Python", "Aprende Python desde cero", 49.99, 90, 4, "/api/images/book.jpg"),
+            ("Lego Star Wars", "Set de construcción", 79.99, 70, 5, "/api/images/lego.jpg"),
+            ("Tablet Samsung", "Tablet 10 pulgadas", 299.99, 45, 0, "/api/images/tablet.jpg"),
+            ("Auriculares Sony", "Auriculares Bluetooth", 149.99, 110, 0, "/api/images/headphones.jpg"),
         ]
         
         product_ids = []

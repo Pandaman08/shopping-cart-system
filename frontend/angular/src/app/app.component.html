@@ -1,21 +1,140 @@
-<nav class="navbar">
-  <div class="navbar-container">
-    <a routerLink="/" class="navbar-brand">🛒 Mi Tienda</a>
-    <div class="navbar-menu">
-      <a routerLink="/products">Productos</a>
-      <a routerLink="/orders" *ngIf="isLoggedIn">Mis Pedidos</a>
-      <a routerLink="/admin/dashboard" *ngIf="isAdmin">Admin</a>
-      <a routerLink="/cart" *ngIf="isLoggedIn">
-        🛒 Carrito
-        <span class="cart-badge" *ngIf="cartItemCount > 0">{{cartItemCount}}</span>
+<header class="app-topbar">
+  <div class="app-topbar__inner">
+    <a [routerLink]="homeRoute" class="app-brand">
+      <span class="app-brand__logo">🛒</span>
+      <span>Mi Tienda</span>
+    </a>
+
+    <nav class="app-menu">
+      <a
+        *ngIf="!isAdmin"
+        routerLink="/products"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="app-menu__link"
+      >
+        Shop
       </a>
-      <a *ngIf="!isLoggedIn" routerLink="/login">Iniciar Sesión</a>
-      <a *ngIf="!isLoggedIn" routerLink="/register">Registrarse</a>
-      <a *ngIf="isLoggedIn" href="javascript:void(0)" (click)="logout()">Cerrar Sesión</a>
+      <a
+        *ngIf="!isAdmin"
+        routerLink="/products"
+        routerLinkActive="active"
+        class="app-menu__link"
+      >
+        Catálogo
+      </a>
+      <a
+        *ngIf="isAdmin"
+        routerLink="/admin/dashboard"
+        routerLinkActive="active"
+        class="app-menu__link"
+      >
+        Admin
+      </a>
+      <a
+        *ngIf="isAdmin"
+        routerLink="/admin/reports"
+        routerLinkActive="active"
+        class="app-menu__link"
+      >
+        Reportes
+      </a>
+    </nav>
+
+    <div class="app-actions">
+      <button
+        *ngIf="isLoggedIn && !isAdmin"
+        type="button"
+        class="cart-link"
+        (click)="toggleCartDrawer()"
+        [attr.aria-expanded]="isCartDrawerOpen"
+        aria-label="Abrir carrito"
+      >
+        🛒
+        <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
+      </button>
+
+      <div *ngIf="!isLoggedIn" class="auth-links">
+        <a routerLink="/login" class="auth-link">Iniciar Sesión</a>
+        <a routerLink="/register" class="auth-btn">Registrarse</a>
+      </div>
+
+      <div *ngIf="isLoggedIn" class="user-box">
+        <span class="user-name">{{ currentUserName }}</span>
+        <button (click)="logout()" class="logout-btn">Cerrar Sesión</button>
+      </div>
     </div>
   </div>
-</nav>
+</header>
 
-<div class="container">
+<main class="app-main">
   <router-outlet></router-outlet>
-</div>
+</main>
+
+<div
+  class="cart-backdrop"
+  *ngIf="isCartDrawerOpen"
+  (click)="closeCartDrawer()"
+></div>
+
+<aside class="cart-drawer" [class.open]="isCartDrawerOpen">
+  <div class="cart-drawer__header">
+    <h3>Tu Carrito</h3>
+    <button type="button" class="drawer-close" (click)="closeCartDrawer()">✕</button>
+  </div>
+
+  <div class="cart-drawer__content" *ngIf="cartItems.length; else emptyCart">
+    <article class="drawer-item" *ngFor="let item of cartItems">
+      <img
+        [src]="item.product_image || placeholderImage"
+        [alt]="item.product_name || 'Producto'"
+        class="drawer-item__image"
+      />
+
+      <div class="drawer-item__info">
+        <h4>{{ item.product_name || 'Producto' }}</h4>
+        <p>S/ {{ item.unit_price | number : '1.2-2' }}</p>
+
+        <div class="drawer-item__actions">
+          <button
+            type="button"
+            (click)="decreaseItem(item, $event)"
+            [disabled]="pendingCartActions.has(item.id || item.product_id)"
+          >
+            -
+          </button>
+          <span>{{ item.quantity }}</span>
+          <button
+            type="button"
+            (click)="increaseItem(item, $event)"
+            [disabled]="pendingCartActions.has(item.id || item.product_id)"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            class="remove"
+            (click)="removeItem(item, $event)"
+            [disabled]="pendingCartActions.has(item.id || item.product_id)"
+          >
+            Quitar
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <ng-template #emptyCart>
+    <p class="empty-cart">Tu carrito está vacío.</p>
+  </ng-template>
+
+  <div class="cart-drawer__footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <strong>S/ {{ cartTotal | number : '1.2-2' }}</strong>
+    </div>
+    <button type="button" class="checkout-btn" routerLink="/cart" (click)="closeCartDrawer()">
+      Ver carrito completo
+    </button>
+  </div>
+</aside>

@@ -45,8 +45,18 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart() {
     if (!this.authService.isLoggedIn()) {
-      alert('Por favor inicia sesión para agregar productos al carrito');
-      this.router.navigate(['/login']);
+      this.cartService.queuePendingItem({
+        id: this.product.id,
+        quantity: this.quantity,
+        name: this.product.name,
+        price: Number(this.product.price),
+        image_url: this.product.image_url
+      });
+
+      const goToLogin = confirm('Debes iniciar sesión para finalizar el agregado al carrito. ¿Quieres ir a iniciar sesión ahora?');
+      this.router.navigate([goToLogin ? '/login' : '/register'], {
+        queryParams: { returnUrl: this.router.url }
+      });
       return;
     }
 
@@ -55,7 +65,11 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    this.cartService.addItem(this.product.id, this.quantity).subscribe({
+    this.cartService.addItem(this.product.id, this.quantity, {
+      name: this.product.name,
+      price: Number(this.product.price),
+      image_url: this.product.image_url
+    }).subscribe({
       next: () => {
         alert(`${this.quantity}x ${this.product.name} agregado al carrito`);
       },

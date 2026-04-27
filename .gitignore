@@ -17,6 +17,7 @@ dist/
 npm-debug.log
 yarn-error.log
 .env.local
+frontend/angular/.angular/
 
 # IDEs
 .vscode/

@@ -41,7 +41,7 @@ async def get_or_create_cart(user_id: str, conn, cache: CacheService):
     items = await conn.fetch(
         """
         SELECT ci.id, ci.product_id, ci.quantity, ci.unit_price,
-               p.name as product_name, p.price as current_price
+             p.name as product_name, p.price as current_price, p.image_url as product_image
         FROM cart_items ci
         JOIN products p ON ci.product_id = p.id
         WHERE ci.cart_id = $1
@@ -58,6 +58,7 @@ async def get_or_create_cart(user_id: str, conn, cache: CacheService):
             'id': str(item['id']),
             'product_id': str(item['product_id']),
             'product_name': item['product_name'],
+            'product_image': item['product_image'],
             'product_price': float(item['unit_price']),
             'quantity': item['quantity'],
             'unit_price': float(item['unit_price']),
@@ -72,7 +73,7 @@ async def get_or_create_cart(user_id: str, conn, cache: CacheService):
     }
     
     # Cache for 5 minutes
-    await cache.set(f"cart:{user_id}", json.dumps(result), expire=300)
+    await cache.set(f"cart:{user_id}", json.dumps(result, default=str), expire=300)
     
     return result
 

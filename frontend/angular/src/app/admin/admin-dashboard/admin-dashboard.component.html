@@ -1,15 +1,90 @@
 <div class="admin-dashboard">
-  <h1>Panel de Administración</h1>
-  
-  <div class="admin-actions">
-    <button class="btn btn-success" routerLink="/admin/products/new">+ Nuevo Producto</button>
-    <button class="btn btn-primary" routerLink="/admin/reports">Ver Reportes</button>
-  </div>
+  <section class="admin-hero">
+    <div>
+      <p class="admin-eyebrow">Centro de control</p>
+      <h1>Panel de Administración</h1>
+      <p class="admin-subtitle">Vista ejecutiva para inventario, ingresos, pedidos y reportes operativos.</p>
+    </div>
+
+    <div class="admin-actions">
+      <button class="btn btn-success" routerLink="/admin/products/new">+ Nuevo Producto</button>
+      <button class="btn btn-primary" routerLink="/admin/reports">Ver Reportes</button>
+    </div>
+  </section>
+
+  <section class="kpi-grid">
+    <article class="kpi-card kpi-card--blue">
+      <p class="kpi-label">Productos</p>
+      <p class="kpi-value">{{ totalProducts }}</p>
+      <p class="kpi-meta">{{ lowStockProducts }} con stock bajo</p>
+    </article>
+    <article class="kpi-card kpi-card--cyan">
+      <p class="kpi-label">Pedidos</p>
+      <p class="kpi-value">{{ totalOrders }}</p>
+      <p class="kpi-meta">{{ paidOrders }} completados</p>
+    </article>
+    <article class="kpi-card kpi-card--amber">
+      <p class="kpi-label">Ingresos</p>
+      <p class="kpi-value">${{ totalRevenue | number:'1.2-2' }}</p>
+      <p class="kpi-meta">Ticket medio ${{ averageTicket | number:'1.2-2' }}</p>
+    </article>
+    <article class="kpi-card kpi-card--rose">
+      <p class="kpi-label">Sin stock</p>
+      <p class="kpi-value">{{ outOfStockProducts }}</p>
+      <p class="kpi-meta">Requieren reposición</p>
+    </article>
+  </section>
+
+  <section class="insights-grid">
+    <article class="panel-card">
+      <div class="panel-card__head">
+        <h2>Mix por categorías</h2>
+        <span>{{ categoryBreakdown.length }} grupos</span>
+      </div>
+
+      <div *ngIf="loadingProducts" class="loading">Cargando categorías...</div>
+
+      <div *ngIf="!loadingProducts" class="bars-list">
+        <div *ngFor="let item of categoryBreakdown" class="bar-row">
+          <div class="bar-row__meta">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill bar-fill--blue" [style.width.%]="item.percent"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel-card">
+      <div class="panel-card__head">
+        <h2>Estado de pedidos</h2>
+        <span>{{ totalOrders }} registros</span>
+      </div>
+
+      <div *ngIf="loadingOrders" class="loading">Cargando estados...</div>
+
+      <div *ngIf="!loadingOrders" class="bars-list">
+        <div *ngFor="let item of orderStatusBreakdown" class="bar-row">
+          <div class="bar-row__meta">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill bar-fill--amber" [style.width.%]="item.percent"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
 
   <div class="dashboard-sections">
-    <!-- Productos -->
     <div class="section">
-      <h2>Gestión de Productos</h2>
+      <div class="section__head">
+        <h2>Gestión de Productos</h2>
+        <span>Operación administrativa</span>
+      </div>
       
       <div *ngIf="loadingProducts" class="loading">
         Cargando productos...
@@ -42,9 +117,11 @@
       </div>
     </div>
 
-    <!-- Pedidos -->
     <div class="section">
-      <h2>Pedidos Recientes</h2>
+      <div class="section__head">
+        <h2>Pedidos Recientes</h2>
+        <span>Últimos 20 movimientos</span>
+      </div>
       
       <div *ngIf="loadingOrders" class="loading">
         Cargando pedidos...

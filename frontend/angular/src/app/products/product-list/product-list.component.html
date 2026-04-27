@@ -21,6 +21,10 @@
   Cargando productos...
 </div>
 
+<div *ngIf="!loading && loadError" class="error-message">
+  {{ loadError }}
+</div>
+
 <div *ngIf="!loading" class="product-grid">
   <div *ngFor="let product of products" class="product-card">
     <div class="product-image">

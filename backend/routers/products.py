@@ -29,7 +29,7 @@ async def get_products(
             param_index += 1
         
         if search:
-            where_clauses.append(f"p.name ILIKE $${param_index}")
+            where_clauses.append(f"p.name ILIKE ${param_index}")
             params.append(f"%{search}%")
             param_index += 1
         
@@ -162,6 +162,11 @@ async def update_product(
         if product.category_id is not None:
             update_fields.append(f"category_id = ${param_index}")
             params.append(product.category_id)
+            param_index += 1
+
+        if product.image_url is not None:
+            update_fields.append(f"image_url = ${param_index}")
+            params.append(product.image_url)
             param_index += 1
         
         if product.is_active is not None:

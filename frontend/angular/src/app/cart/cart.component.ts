@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService } from '../services/cart.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   cart: any = null;
   loading = true;
+  private cartSubscription?: Subscription;
 
   constructor(
     private cartService: CartService,
@@ -17,7 +19,17 @@ export class CartComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.cartSubscription = this.cartService.cart$.subscribe(cart => {
+      if (cart) {
+        this.cart = cart;
+        this.loading = false;
+      }
+    });
     this.loadCart();
+  }
+
+  ngOnDestroy() {
+    this.cartSubscription?.unsubscribe();
   }
 
   loadCart() {
@@ -37,7 +49,10 @@ export class CartComponent implements OnInit {
     const newQuantity = item.quantity + change;
     if (newQuantity >= 1) {
       this.cartService.updateItem(item.product_id, newQuantity).subscribe({
-        next: () => this.loadCart(),
+        next: (cart) => {
+          this.cart = cart;
+          this.loading = false;
+        },
         error: (error) => alert('Error al actualizar cantidad: ' + error.message)
       });
     }
@@ -46,7 +61,10 @@ export class CartComponent implements OnInit {
   removeItem(productId: string) {
     if (confirm('¿Eliminar este producto del carrito?')) {
       this.cartService.removeItem(productId).subscribe({
-        next: () => this.loadCart(),
+        next: (cart) => {
+          this.cart = cart;
+          this.loading = false;
+        },
         error: (error) => alert('Error al eliminar: ' + error.message)
       });
     }
