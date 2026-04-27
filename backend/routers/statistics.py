@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from auth import get_admin_user
 from database.connection import get_db
 
@@ -7,12 +7,14 @@ router = APIRouter(prefix="/api/statistics", tags=["statistics"])
 
 @router.get("/sales/daily")
 async def daily_sales(
-    date: str = Query(None),
+    date: str | None = Query(None),
     admin_user=Depends(get_admin_user),
     db=Depends(get_db)
 ):
     if not date:
-        date = datetime.now().date().isoformat()
+        target_date = datetime.now().date()
+    else:
+        target_date = datetime.strptime(date, "%Y-%m-%d").date()
     
     async with db.acquire() as conn:
         result = await conn.fetchrow(
@@ -22,9 +24,9 @@ async def daily_sales(
                 COUNT(*) as orders_count,
                 COALESCE(AVG(total_amount), 0) as average_ticket
             FROM orders
-            WHERE DATE(created_at) = $1 AND status = 'paid'
+            WHERE DATE(created_at) = $1::DATE AND status = 'paid'
             """,
-            date
+            target_date
         )
         
         return dict(result)
@@ -35,6 +37,8 @@ async def sales_timeline(
     admin_user=Depends(get_admin_user),
     db=Depends(get_db)
 ):
+    days_text = str(days)
+
     async with db.acquire() as conn:
         results = await conn.fetch(
             """
@@ -43,12 +47,12 @@ async def sales_timeline(
                 COALESCE(SUM(total_amount), 0) as total_sales,
                 COUNT(*) as orders_count
             FROM orders
-            WHERE created_at >= NOW() - ($1 || ' days')::INTERVAL
+            WHERE created_at >= NOW() - (($1 || ' days')::INTERVAL)
                 AND status = 'paid'
             GROUP BY DATE(created_at)
             ORDER BY date ASC
             """,
-            days
+            days_text
         )
         
         return [dict(row) for row in results]
@@ -60,6 +64,8 @@ async def top_products(
     admin_user=Depends(get_admin_user),
     db=Depends(get_db)
 ):
+    days_text = str(days)
+
     async with db.acquire() as conn:
         results = await conn.fetch(
             """
@@ -71,13 +77,13 @@ async def top_products(
             FROM order_items oi
             JOIN orders o ON oi.order_id = o.id
             JOIN products p ON oi.product_id = p.id
-            WHERE o.created_at >= NOW() - ($1 || ' days')::INTERVAL
+            WHERE o.created_at >= NOW() - (($1 || ' days')::INTERVAL)
                 AND o.status = 'paid'
             GROUP BY p.id, p.name
             ORDER BY total_quantity DESC
             LIMIT $2
             """,
-            days, limit
+            days_text, limit
         )
         
         return [dict(row) for row in results]
